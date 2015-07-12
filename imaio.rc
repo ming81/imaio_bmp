@@ -1,0 +1,39 @@
+/*****************************************************************************/
+/* imaio.rc --- resource file of imaio                                       */
+/* Copyright (C) 2015 katahiromz. All Rights Reserved.                       */
+/*****************************************************************************/
+
+#include <windows.h>
+
+#ifndef IMAIO_BUIDING
+    1 GIF "circle.gif"
+    1 PNG "star.png"
+    1 BITMAP "money.bmp"
+#endif
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     0, 3, 0, 0
+PRODUCTVERSION  0, 3, 0, 0
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+BEGIN
+    /* English (U.S.) */
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName", "Katayama Hirofumi MZ\0"
+            VALUE "FileDescription", "imaio\0"
+            VALUE "FileVersion", "0.3\0"
+            VALUE "LegalCopyright", "Copyright (C) 2015 katahiromz. All Rights Reserved.\0"
+            VALUE "ProductName", "imaio\0"
+            VALUE "ProductVersion", "0.3\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 0x04E4
+    END
+END
+
+/*****************************************************************************/

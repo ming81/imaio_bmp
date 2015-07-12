@@ -1,0 +1,99 @@
+#######################################################################
+# Makefile.bcc32 --- Makefile for Borland C++ Compiler 5.5.1
+# Usage: make -f Makefile.bcc32
+#######################################################################
+
+DOTOBJ = .obj
+DOTEXE = .exe
+CURDIR = .\\
+
+CONFIG = -O2 -DNDEBUG -WM
+#CONFIG = -Od -D_DEBUG -WM -v -y
+
+#
+# disable ole picture loading
+#
+EXTRA_CCFLAGS =
+EXTRA_LIBS =
+
+#
+# enable ole picture loading
+#
+#EXTRA_CCFLAGS = -DIIO_USE_OLE_PICTURE=1
+#EXTRA_LIBS = -luuid -lole32 -loleaut32
+
+CC = bcc32
+CCFLAGS = $(CONFIG) $(EXTRA_CCFLAGS)
+
+RC = brc32
+RCFLAGS = 
+
+TEST_PROGRAM = imaio_test$(DOTEXE)
+TEST_PROGRAM_OBJS = imaio_win$(DOTOBJ) imaio_test$(DOTOBJ)
+TEST_PROGRAM_LIBS = msimg32.lib $(EXTRA_LIBS)
+
+LIBRARY = imaio.lib
+LIBRARY_OBJS = imaio_win$(DOTOBJ)
+
+all: $(LIBRARY) $(TEST_PROGRAM)
+
+test: $(TEST_PROGRAM)
+	$(CURDIR)$(TEST_PROGRAM)
+
+$(TEST_PROGRAM): $(TEST_PROGRAM_OBJS)
+	$(CC) -WC $(CCFLAGS) -e$(TEST_PROGRAM) $(TEST_PROGRAM_OBJS) $(TEST_PROGRAM_LIBS)
+	$(RC) $(RCFLAGS) imaio.rc $(TEST_PROGRAM)
+
+$(LIBRARY): $(LIBRARY_OBJS)
+	if exist $(LIBRARY) del $(LIBRARY)
+	tlib $(LIBRARY) +imaio_win$(DOTOBJ)
+
+imaio_win$(DOTOBJ): imaio_win.c imaio.h
+	$(CC) $(CCFLAGS) -c imaio_win.c
+imaio_test$(DOTOBJ): imaio_test.c imaio.h
+	$(CC) $(CCFLAGS) -c imaio_test.c
+
+clean:
+	if exist *.o del *.o
+	if exist *.obj del *.obj
+	if exist *.res del *.res
+	if exist *.tds del *.tds
+	if exist *.tmp del *.tmp
+	if exist *.user del *.user
+	if exist *.sdf del *.sdf
+	if exist *.suo del /A:H *.suo
+	if exist *.filters del *.filters
+	if exist grad.bmp del grad.bmp
+	if exist circle.bmp del circle.bmp
+	if exist star.bmp del star.bmp
+	if exist star.gif del star.gif
+	if exist xwordgiver-title.bmp del xwordgiver-title.bmp
+	if exist money.jpg del money.jpg
+	if exist money.gif del money.gif
+	if exist money.png del money.png
+	if exist money.tif del money.tif
+	if exist circle_res.bmp del circle_res.bmp
+	if exist star_res.bmp del star_res.bmp
+	if exist money_res.bmp del money_res.bmp
+	if exist created.bmp del created.bmp
+	if exist new_anime.* del new_anime.*
+	if exist new_circle.gif del new_circle.gif
+	if exist new-clock-opt.* del new-clock-opt.*
+	if exist frame-*.bmp del frame-*.bmp
+	if exist frame-*.gif del frame-*.gif
+	if exist frame-*.png del frame-*.png
+	if exist another_star.png del another_star.png
+	if exist part*.png del part*.png
+	if exist screen*.png del screen*.png
+	if exist *.map del *.map
+	if exist *.def del *.def
+
+extra_clean: clean
+	if exist imaio_test.exe del imaio_test.exe
+	if exist imaio.lib del imaio.lib
+	if exist imaio.dll del imaio.dll
+	if exist imaio_dll.lib del imaio_dll.lib
+	if exist imaio64.lib del imaio64.lib
+	if exist imaio64.dll del imaio64.dll
+	if exist imaio64_dll.lib del imaio64_dll.lib
+	if exist lib*.a del lib*.a

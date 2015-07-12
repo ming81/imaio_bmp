@@ -1,0 +1,102 @@
+#######################################################################
+# Makefile.dll.mingw32 --- Makefile for 32-bit MinGW gcc
+# Usage: make -f Makefile.dll.mingw32
+#######################################################################
+
+DOTOBJ = .o
+DOTEXE = .exe
+CURDIR = ./
+
+CONFIG = -O2 -DNDEBUG
+#CONFIG = -O0 -D_DEBUG -g -ggdb
+
+#
+# disable ole picture loading
+#
+EXTRA_CCFLAGS = 
+EXTRA_LIBS =
+
+#
+# enable ole pictures loading
+#
+#EXTRA_CCFLAGS = -DDIIO_USE_OLE_PICTURE=1
+#EXTRA_LIBS = -luuid -lole32 -loleaut32
+
+CC = gcc
+CCFLAGS = -m32 -static $(CONFIG) -DIMAIO_DLL=1 $(EXTRA_CCFLAGS)
+
+RC = windres
+RCFLAGS = -F pe-i386            # x86
+#RCFLAGS = -F pe-x86-64         # x64
+
+DLL_FILE = imaio.dll
+DLL_IMPORT_LIB = libimaio.dll.a
+DLL_OBJS = imaio_win$(DOTOBJ)
+DLL_LIBS = -lgdi32 -ljpeg -lpng -lz -lgif -ltiff -llzma -lmsimg32 $(EXTRA_LIBS)
+
+TEST_PROGRAM = imaio_test$(DOTEXE)
+TEST_PROGRAM_OBJS = imaio_test$(DOTOBJ)
+TEST_PROGRAM_LIBS = libimaio.dll.a -lgdi32
+
+all: $(DLL_FILE) $(DLL_IMPORT_LIB) $(TEST_PROGRAM)
+
+test: $(TEST_PROGRAM)
+	$(CURDIR)$(TEST_PROGRAM)
+
+$(DLL_FILE) $(DLL_IMPORT_LIB): $(DLL_OBJS)
+	$(RC) $(RCFLAGS) -DIMAIO_BUILDING=1 -i imaio.rc -o imaio_res$(DOTOBJ)
+	$(CC) -shared -Wl,--out-implib,$(DLL_IMPORT_LIB) $(CCFLAGS) -o $(DLL_FILE) $(DLL_OBJS) $(DLL_LIBS) imaio_res$(DOTOBJ)
+
+$(TEST_PROGRAM): $(TEST_PROGRAM_OBJS) $(DLL_IMPORT_LIB)
+	$(RC) $(RCFLAGS) -i imaio.rc -o imaio_res$(DOTOBJ)
+	$(CC) $(CCFLAGS) -o $(TEST_PROGRAM) $(TEST_PROGRAM_OBJS) $(TEST_PROGRAM_LIBS) imaio_res$(DOTOBJ)
+
+imaio_win$(DOTOBJ): imaio_win.c imaio.h
+	$(CC) $(CCFLAGS) -c imaio_win.c
+imaio_test$(DOTOBJ): imaio_test.c imaio.h
+	$(CC) $(CCFLAGS) -c imaio_test.c
+
+clean:
+	rm -f *.o
+	rm -f *.obj
+	rm -f *.res
+	rm -f *.tds
+	rm -f *.tmp
+	rm -f *.user
+	rm -f *.sdf
+	rm -f *.suo
+	rm -f *.filters
+	rm -f grad.bmp
+	rm -f circle.bmp
+	rm -f star.bmp
+	rm -f star.gif
+	rm -f xwordgiver-title.bmp
+	rm -f money.jpg
+	rm -f money.gif
+	rm -f money.png
+	rm -f money.tif
+	rm -f circle_res.bmp
+	rm -f star_res.bmp
+	rm -f money_res.bmp
+	rm -f created.bmp
+	rm -f new_anime.*
+	rm -f new_circle.gif
+	rm -f new-clock-opt.*
+	rm -f frame-*.bmp
+	rm -f frame-*.gif
+	rm -f frame-*.png
+	rm -f another_star.png
+	rm -f part*.png
+	rm -f screen*.png
+	rm -f *.map
+	rm -f *.def
+
+extra_clean: clean
+	rm -f imaio_test.exe
+	rm -f imaio.lib
+	rm -f imaio.dll
+	rm -f imaio_dll.lib
+	rm -f imaio64.lib
+	rm -f imaio64.dll
+	rm -f imaio64_dll.lib
+	rm -f lib*.a
