@@ -26,9 +26,9 @@
         #include <windows.h>
     #endif
 #else
-    #include <X11/X.h>
-    #include <X11/Xlib.h>
-    #include <X11/Xutil.h>
+    #ifndef _X11_XUTIL_H_H
+        #include <X11/Xutil.h>
+    #endif
 #endif
 
 /*****************************************************************************/

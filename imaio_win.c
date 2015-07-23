@@ -3388,7 +3388,7 @@ ii_anigif_load_common(GifFileType *gif, II_FLAGS flags)
                         if (i + 1 < image->ExtensionBlockCount)
                         {
                             ++block;
-                            if (block->ByteCount >= 3)
+                            if (block->ByteCount == 3 && (block->Bytes[0] & 7) == 1)
                             {
                                 anigif->loop_count =
                                     ((block->Bytes[1] & 0xFF) |
@@ -3725,7 +3725,24 @@ ii_anigif_save_common(GifFileType *gif, II_ANIGIF *anigif)
             GifFreeExtensions(
                 &image->ExtensionBlockCount, &image->ExtensionBlocks);
         }
+        if (i == 0 && anigif->loop_count)
         {
+            /* APPLICATION_EXT_FUNC_CODE */
+            uint8_t params[3];
+
+            GifAddExtensionBlock(
+                &image->ExtensionBlockCount, &image->ExtensionBlocks,
+                APPLICATION_EXT_FUNC_CODE, 11, (uint8_t *)"NETSCAPE2.0");
+
+            params[0] = 1;
+            params[1] = (uint8_t)(anigif->loop_count);
+            params[2] = (uint8_t)(anigif->loop_count >> 8);
+            GifAddExtensionBlock(
+                &image->ExtensionBlockCount, &image->ExtensionBlocks,
+                0, 3, params);
+        }
+        {
+            /* GRAPHICS_EXT_FUNC_CODE */
             uint8_t extension[4];
             uint16_t delay = frame->delay / 10;
             extension[0] = (uint8_t)(frame->iTransparent != -1);
@@ -3775,28 +3792,6 @@ ii_anigif_save_common(GifFileType *gif, II_ANIGIF *anigif)
                 }
             }
         }
-    }
-
-    /* clear ExtensionBlocks */
-    if (gif->ExtensionBlocks)
-    {
-        GifFreeExtensions(&gif->ExtensionBlockCount, &gif->ExtensionBlocks);
-    }
-    /* APPLICATION_EXT_FUNC_CODE */
-    if (anigif->loop_count)
-    {
-        uint8_t params[3];
-
-        GifAddExtensionBlock(
-            &gif->ExtensionBlockCount, &gif->ExtensionBlocks,
-            APPLICATION_EXT_FUNC_CODE, 11, (uint8_t *)"NETSCAPE2.0");
-
-        params[0] = 1;
-        params[1] = (uint8_t)(anigif->loop_count);
-        params[2] = (uint8_t)(anigif->loop_count >> 8);
-        GifAddExtensionBlock(
-            &gif->ExtensionBlockCount, &gif->ExtensionBlocks,
-            0, 3, params);
     }
 
     ret = EGifSpew(gif);
